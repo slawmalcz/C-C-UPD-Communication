@@ -31,6 +31,20 @@ namespace CompNetworkProject
                     data = newsock.Receive(ref ipep);
                     if (Encoding.ASCII.GetString(data) == "Accepted connection") stateMachine = 1;
                     break;
+                /*
+                 * Weitnig for server connection validate signal
+                 */
+                case 1:
+                    if (Encoding.ASCII.GetString(data) == "Valid connection")
+                    {
+                        stateMachine = 2;
+                    }
+                    else
+                    {
+                        stateMachine = 0;
+                    }
+                    break;
+
             }
             /*
             Console.WriteLine("Waiting for a client...");
