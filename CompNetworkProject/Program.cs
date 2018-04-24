@@ -32,7 +32,7 @@ namespace CompNetworkProject
                     if (Encoding.ASCII.GetString(data) == "Accepted connection") stateMachine = 1;
                     break;
                 /*
-                 * Weitnig for server connection validate signal
+                 * Waitnig for server connection validate signal
                  */
                 case 1:
                     if (Encoding.ASCII.GetString(data) == "Valid connection")
@@ -44,30 +44,29 @@ namespace CompNetworkProject
                         stateMachine = 0;
                     }
                     break;
-
+                /*
+                 * Sending data protocol
+                 */
+                case 2:
+                    Boolean isDataEnd = false;
+                    while (true)
+                    {
+                        /*
+                         * here pass what you whant to send to data variable
+                         * and if you have nothing more to send, set isDataEnd to true;
+                         */
+                        if (isDataEnd)
+                        {
+                            newsock.Send(data, 0, ipep);
+                            break;
+                        }
+                        else
+                        {
+                            newsock.Send(data, data.Length, ipep);
+                        }
+                    }
+                    break;
             }
-            /*
-            Console.WriteLine("Waiting for a client...");
-
-            IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-
-            data = newsock.Receive(ref sender);
-
-            Console.WriteLine("Message received from {0}:", sender.ToString());
-            Console.WriteLine(Encoding.ASCII.GetString(data, 0, data.Length));
-
-            string welcome = "Welcome to my test server";
-            data = Encoding.ASCII.GetBytes(welcome);
-            newsock.Send(data, data.Length, sender);
-
-            while (true)
-            {
-                data = newsock.Receive(ref sender);
-
-                Console.WriteLine(Encoding.ASCII.GetString(data, 0, data.Length));
-                newsock.Send(data, data.Length, sender);
-            }
-            */
         }
 
         /// <summary>
