@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -9,23 +8,10 @@ using System.Threading.Tasks;
 
 namespace CompNetworkProject
 {
-    class SendProtocol
+    class ReciveProtocol
     {
-        private string pathToFile;
-        private int numOfPackets;
-        private string nameAndExtension;
+        FileProcesor fileProcesor;
         private Dictionary<int, byte[]> packages;
-
-        public SendProtocol()
-        {
-
-            Console.WriteLine("Type path to file you want to send:");
-            pathToFile = Console.ReadLine();
-            nameAndExtension = Path.GetFileName(pathToFile) + '.' + Path.GetExtension(pathToFile);
-            FileProcesor procesedFile = new FileProcesor(pathToFile);
-            packages = procesedFile.GetPackages();
-            numOfPackets = procesedFile.NumOfPacket;
-        }
 
         /// <summary>
         /// Static functions for determine witch whom we want to trade data
@@ -54,46 +40,52 @@ namespace CompNetworkProject
             switch (stateMachine)
             {
                 /*
-                 * Sending to server getter IP and waiting for accepting connection
+                 * Initialize recive protocol.
                  */
                 case 0:
                     newsock = InitializeSocket(out ipep);
-                    String ipGeter;
-                    ipGeter = Console.ReadLine();
-                    data = Encoding.ASCII.GetBytes(ipGeter);
-                    newsock.Send(data, data.Length, ipep);
-                    data = newsock.Receive(ref ipep);
-                    if (Encoding.ASCII.GetString(data) == "Accepted connection") stateMachine = 1;
+                    stateMachine = 1;
+                    
                     break;
                 /*
-                 * Waitnig for server connection validate signal
+                 * Waait to validate connection
                  */
                 case 1:
                     data = newsock.Receive(ref ipep);
-                    if (Encoding.ASCII.GetString(data) == "Valid connection")
+                    if (Encoding.ASCII.GetString(data) == "Validate connection")
                     {
+                        data = Encoding.ASCII.GetBytes("Validate");
+                        newsock.Send(data, data.Length, ipep);
                         stateMachine = 2;
                     }
                     else
                     {
-                        stateMachine = 0;
+                        Console.WriteLine("Bad UDP communications");
                     }
                     break;
+                    
                 /*
-                 * Sending data information:
+                 * Read data information:
                  *  - name and extension
                  *  - number of package
-                 * and whaiting for confirmation.
+                 * and send confirmation
+                 * Creating file procesor
                  */
                 case 2:
-                    data = Encoding.ASCII.GetBytes(nameAndExtension);
+                    String nameAndExtension;
+                    int numOfPackages;
+                    data = newsock.Receive(ref ipep);
+                    nameAndExtension = Encoding.ASCII.GetString(data);
+                    data = Encoding.ASCII.GetBytes("OK");
                     newsock.Send(data, data.Length, ipep);
                     data = newsock.Receive(ref ipep);
-                    if (Encoding.ASCII.GetString(data) != "OK") break;
-                    data = Encoding.ASCII.GetBytes(numOfPackets.ToString());
+                    numOfPackages = Int32.Parse(Encoding.ASCII.GetString(data));
+                    data = Encoding.ASCII.GetBytes("OK");
                     newsock.Send(data, data.Length, ipep);
-                    data = newsock.Receive(ref ipep);
-                    if (Encoding.ASCII.GetString(data) == "OK") stateMachine = 3;
+
+                    fileProcesor = new FileProcesor(nameAndExtension, numOfPackages);
+
+                    stateMachine = 3;
                     break;
 
                 /*
@@ -101,22 +93,36 @@ namespace CompNetworkProject
                  */
                 case 3:
                     int NumberSequencer;
-                    for(int i=0;i<packages.Count;i++)
+                    for (int i = 0; i < fileProcesor.NumOfPacket; i++)
                     {
-                        NumberSequencer = i;
-                        data = Encoding.ASCII.GetBytes(NumberSequencer.ToString());
-                        newsock.Send(data, data.Length, ipep);
                         data = newsock.Receive(ref ipep);
-                        if (Encoding.ASCII.GetString(data) != "OK") continue;
-                        data = packages[i];
+                        NumberSequencer = Int32.Parse(Encoding.ASCII.GetString(data));
+                        data = Encoding.ASCII.GetBytes("OK");
                         newsock.Send(data, data.Length, ipep);
+
                         data = newsock.Receive(ref ipep);
-                        if (Encoding.ASCII.GetString(data) != "OK") continue;
+                        fileProcesor.insertPackage(NumberSequencer, data);
+                        data = Encoding.ASCII.GetBytes("OK");
+                        newsock.Send(data, data.Length, ipep);
                     }
-                    newsock.Send(data, 0, ipep);
+                    data = newsock.Receive(ref ipep);
+                    if (Encoding.ASCII.GetString(data) == "")
+                    {
+                        stateMachine = 4;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error");
+                        stateMachine = 0;
+                    }
+                    break;
+
+                case 4:
+                    fileProcesor.combineFile(fileProcesor.NumOfPacket);
+                    stateMachine = 0;
                     break;
             }
         }
-    }
 
+    }
 }

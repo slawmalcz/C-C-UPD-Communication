@@ -45,6 +45,7 @@
     <Compile Include="FileProcesor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReciveProtocol.cs" />
     <Compile Include="SendProtocol.cs" />
   </ItemGroup>
   <ItemGroup>

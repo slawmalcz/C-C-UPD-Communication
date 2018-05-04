@@ -22,6 +22,12 @@ namespace CompNetworkProject
             this.FilePath = filePath;
         }
 
+        public FileProcesor(string nameAndExtension, int numOfPackage)
+        {
+            this.FilePath = nameAndExtension;
+            this.numOfPacket = numOfPackage;
+        }
+
         public Dictionary<int,byte[]> GetPackages(int byteBuffer = 1024)
         {
             var byteArray = File.ReadAllBytes(this.FilePath);
