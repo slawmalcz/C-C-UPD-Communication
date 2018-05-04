@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define BUFLEN 512
+#define BUFLEN 1024
 #define NPACK 10
 #define PORT 25565
 
@@ -39,6 +39,7 @@ int sendPackage(char *buffer,char *ipAddres){
 
 int main(void)
 {
+	
 	struct sockaddr_in si_me, si_other;
 	int s, i, slen=sizeof(si_other);
 	char buf[BUFLEN];
@@ -59,6 +60,7 @@ int main(void)
 		switch(stateMachine){
 			/* Waiting to recive protocol initiation package */
 			case(0):
+				
 				if (recvfrom(s, buf, BUFLEN, 0, &si_other, &slen)==-1)
 					diep("recvfrom()");
 				printf("Received packet from %s:%d\nData: %s\n", 
