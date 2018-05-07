@@ -40,7 +40,16 @@ namespace CompNetworkProject
             Console.WriteLine("Podaj adres portu servera:");
             portServer = Console.ReadLine();
             ipep = new IPEndPoint(IPAddress.Parse(ipServer), Int32.Parse(portServer));
-            newsock = new UdpClient(ipep);
+            try
+            {
+                newsock = new UdpClient(ipep);
+            }
+            catch (Exception e)
+            {
+                newsock = new UdpClient();
+                Console.WriteLine(e);
+                throw new Exception("Cannot connect");
+            }
             return newsock;
         }
 
@@ -50,72 +59,83 @@ namespace CompNetworkProject
             IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 0);
             UdpClient newsock = new UdpClient();
             int stateMachine = 0;
-
-            switch (stateMachine)
+            try
             {
-                /*
-                 * Sending to server getter IP and waiting for accepting connection
-                 */
-                case 0:
-                    newsock = InitializeSocket(out ipep);
-                    String ipGeter;
-                    ipGeter = Console.ReadLine();
-                    data = Encoding.ASCII.GetBytes(ipGeter);
-                    newsock.Send(data, data.Length, ipep);
-                    data = newsock.Receive(ref ipep);
-                    if (Encoding.ASCII.GetString(data) == "Accepted connection") stateMachine = 1;
-                    break;
-                /*
-                 * Waitnig for server connection validate signal
-                 */
-                case 1:
-                    data = newsock.Receive(ref ipep);
-                    if (Encoding.ASCII.GetString(data) == "Valid connection")
+                while (true)
+                {
+                    switch (stateMachine)
                     {
-                        stateMachine = 2;
-                    }
-                    else
-                    {
-                        stateMachine = 0;
-                    }
-                    break;
-                /*
-                 * Sending data information:
-                 *  - name and extension
-                 *  - number of package
-                 * and whaiting for confirmation.
-                 */
-                case 2:
-                    data = Encoding.ASCII.GetBytes(nameAndExtension);
-                    newsock.Send(data, data.Length, ipep);
-                    data = newsock.Receive(ref ipep);
-                    if (Encoding.ASCII.GetString(data) != "OK") break;
-                    data = Encoding.ASCII.GetBytes(numOfPackets.ToString());
-                    newsock.Send(data, data.Length, ipep);
-                    data = newsock.Receive(ref ipep);
-                    if (Encoding.ASCII.GetString(data) == "OK") stateMachine = 3;
-                    break;
+                        /*
+                         * Sending to server getter IP and waiting for accepting connection
+                         */
+                        case 0:
+                            newsock = InitializeSocket(out ipep);
+                            String ipGeter;
+                            ipGeter = Console.ReadLine();
+                            data = Encoding.ASCII.GetBytes(ipGeter);
+                            newsock.Send(data, data.Length, ipep);
+                            data = newsock.Receive(ref ipep);
+                            if (Encoding.ASCII.GetString(data) == "Accepted connection") stateMachine = 1;
+                            break;
+                        /*
+                         * Waitnig for server connection validate signal
+                         */
+                        case 1:
+                            data = newsock.Receive(ref ipep);
+                            if (Encoding.ASCII.GetString(data) == "Valid connection")
+                            {
+                                stateMachine = 2;
+                            }
+                            else
+                            {
+                                stateMachine = 0;
+                            }
+                            break;
+                        /*
+                         * Sending data information:
+                         *  - name and extension
+                         *  - number of package
+                         * and whaiting for confirmation.
+                         */
+                        case 2:
+                            data = Encoding.ASCII.GetBytes(nameAndExtension);
+                            newsock.Send(data, data.Length, ipep);
+                            data = newsock.Receive(ref ipep);
+                            if (Encoding.ASCII.GetString(data) != "OK") break;
+                            data = Encoding.ASCII.GetBytes(numOfPackets.ToString());
+                            newsock.Send(data, data.Length, ipep);
+                            data = newsock.Receive(ref ipep);
+                            if (Encoding.ASCII.GetString(data) == "OK") stateMachine = 3;
+                            break;
 
-                /*
-                 * Sending data protocol
-                 */
-                case 3:
-                    int NumberSequencer;
-                    for(int i=0;i<packages.Count;i++)
-                    {
-                        NumberSequencer = i;
-                        data = Encoding.ASCII.GetBytes(NumberSequencer.ToString());
-                        newsock.Send(data, data.Length, ipep);
-                        data = newsock.Receive(ref ipep);
-                        if (Encoding.ASCII.GetString(data) != "OK") continue;
-                        data = packages[i];
-                        newsock.Send(data, data.Length, ipep);
-                        data = newsock.Receive(ref ipep);
-                        if (Encoding.ASCII.GetString(data) != "OK") continue;
+                        /*
+                         * Sending data protocol
+                         */
+                        case 3:
+                            int NumberSequencer;
+                            for (int i = 0; i < packages.Count; i++)
+                            {
+                                NumberSequencer = i;
+                                data = Encoding.ASCII.GetBytes(NumberSequencer.ToString());
+                                newsock.Send(data, data.Length, ipep);
+                                data = newsock.Receive(ref ipep);
+                                if (Encoding.ASCII.GetString(data) != "OK") continue;
+                                data = packages[i];
+                                newsock.Send(data, data.Length, ipep);
+                                data = newsock.Receive(ref ipep);
+                                if (Encoding.ASCII.GetString(data) != "OK") continue;
+                            }
+                            newsock.Send(data, 0, ipep);
+                            break;
                     }
-                    newsock.Send(data, 0, ipep);
-                    break;
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("something went wrong");
+                Console.WriteLine(e.Message);
+            }
+            
         }
     }
 
