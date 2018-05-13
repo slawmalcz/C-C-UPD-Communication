@@ -5,16 +5,24 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace ObjectClientServer
 {
     class Server
     {
-        public static void Main()
+        private TextBlock mainConsole;
+
+        public Server(TextBlock mainConsole)
+        {
+            this.mainConsole = mainConsole;
+        }
+
+        public void Main()
         {
             try
             {
-                IPAddress ipAd = IPAddress.Parse("172.21.5.99");
+                IPAddress ipAd = HostNameToIP("term2");
                 // use local m/c IP address, and 
                 // use the same in the client
 
@@ -24,23 +32,23 @@ namespace ObjectClientServer
                 /* Start Listeneting at the specified port */
                 myList.Start();
 
-                Console.WriteLine("The server is running at port 8001...");
-                Console.WriteLine("The local End point is  :" +
-                                  myList.LocalEndpoint);
-                Console.WriteLine("Waiting for a connection.....");
+                mainConsole.Text += "The server is running at port 8001.../n";
+                mainConsole.Text += "The local End point is  :" +
+                                  myList.LocalEndpoint + "/n";
+                mainConsole.Text += "Waiting for a connection...../n";
 
                 Socket s = myList.AcceptSocket();
-                Console.WriteLine("Connection accepted from " + s.RemoteEndPoint);
+                mainConsole.Text += "Connection accepted from " + s.RemoteEndPoint + "/n";
 
                 byte[] b = new byte[100];
                 int k = s.Receive(b);
-                Console.WriteLine("Recieved...");
+                mainConsole.Text += "Recieved.../n";
                 for (int i = 0; i < k; i++)
                     Console.Write(Convert.ToChar(b[i]));
 
                 ASCIIEncoding asen = new ASCIIEncoding();
                 s.Send(asen.GetBytes("The string was recieved by the server."));
-                Console.WriteLine("\nSent Acknowledgement");
+                mainConsole.Text += "\nSent Acknowledgement/n";
                 /* clean up */
                 s.Close();
                 myList.Stop();
@@ -48,7 +56,27 @@ namespace ObjectClientServer
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error..... " + e.StackTrace);
+                mainConsole.Text += "Error..... " + e.StackTrace + "/n";
+            }
+        }
+
+        private IPAddress HostNameToIP(string host)
+        {
+            IPHostEntry hostEntry;
+
+            hostEntry = Dns.GetHostEntry(host);
+
+            //you might get more than one ip for a hostname since 
+            //DNS supports more than one record
+
+            if (hostEntry.AddressList.Length > 0)
+            {
+                var ip = hostEntry.AddressList[0];
+                return ip;
+            }
+            else
+            {
+                throw new Exception("Cannot convert hostname to IP");
             }
         }
     }

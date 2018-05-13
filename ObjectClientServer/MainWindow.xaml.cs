@@ -24,5 +24,17 @@ namespace ObjectClientServer
         {
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var ServerButton = new Server(MainConsole);
+            ServerButton.Main();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            var ClientButton = new Client(MainConsole);
+            ClientButton
+        }
     }
 }

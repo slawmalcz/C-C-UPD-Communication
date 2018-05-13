@@ -6,30 +6,38 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace ObjectClientServer
 {
     class Client
     {
-        public static void Main()
+        private TextBlock mainConsole;
+
+        public Client(TextBlock mainConsole)
+        {
+            this.mainConsole = mainConsole;
+        }
+
+        public void Main()
         {
             try
             {
                 TcpClient tcpclnt = new TcpClient();
-                Console.WriteLine("Connecting.....");
+                mainConsole.Text += "Connecting...../n";
 
-                tcpclnt.Connect("172.21.5.99", 8001);
+                tcpclnt.Connect(HostNameToIP("term2"), 8001);
                 // use the ipaddress as in the server program
 
-                Console.WriteLine("Connected");
-                Console.Write("Enter the string to be transmitted : ");
+                mainConsole.Text += "Connected /n";
+                mainConsole.Text += "Enter the string to be transmitted : /n";
 
-                String str = Console.ReadLine();
+                String str = "Test message";
                 Stream stm = tcpclnt.GetStream();
 
                 ASCIIEncoding asen = new ASCIIEncoding();
                 byte[] ba = asen.GetBytes(str);
-                Console.WriteLine("Transmitting.....");
+                mainConsole.Text += "Transmitting...../n";
 
                 stm.Write(ba, 0, ba.Length);
 
@@ -44,7 +52,7 @@ namespace ObjectClientServer
 
             catch (Exception e)
             {
-                Console.WriteLine("Error..... " + e.StackTrace);
+                mainConsole.Text += "Error..... " + e.StackTrace+"/n";
             }
         }
 
