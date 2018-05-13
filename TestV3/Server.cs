@@ -5,50 +5,42 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 
-namespace ObjectClientServer
-{
     class Server
     {
-        private TextBlock mainConsole;
-
-        public Server(TextBlock mainConsole)
-        {
-            this.mainConsole = mainConsole;
-        }
 
         public void Main()
         {
             try
             {
-                IPAddress ipAd = HostNameToIP("DESKTOP-0HHCC1N");
-                // use local m/c IP address, and 
-                // use the same in the client
+            IPAddress ipAd = IPAddress.Parse("192.168.1.106");
+            // use local m/c IP address, and 
+            // use the same in the client
 
-                /* Initializes the Listener */
+            /* Initializes the Listener */
+            Console.WriteLine(ipAd.ToString());
                 TcpListener myList = new TcpListener(ipAd, 25565);
-                mainConsole.Text += "Starting .../n";
+                Console.WriteLine("Starting ...");
                 /* Start Listeneting at the specified port */
                 myList.Start();
 
-                mainConsole.Text += "The server is running at port 8001.../n";
-                mainConsole.Text += "The local End point is  :" +
-                                  myList.LocalEndpoint + "/n";
-                mainConsole.Text += "Waiting for a connection...../n";
+                Console.WriteLine("The server is running at port 8001...");
+                Console.WriteLine("The local End point is  :" +
+                                  myList.LocalEndpoint);
+                Console.WriteLine("Waiting for a connection.....");
 
                 Socket s = myList.AcceptSocket();
-                mainConsole.Text += "Connection accepted from " + s.RemoteEndPoint + "/n";
+                Console.WriteLine("Connection accepted from " + s.RemoteEndPoint);
 
                 byte[] b = new byte[100];
                 int k = s.Receive(b);
-                mainConsole.Text += "Recieved.../n";
+                Console.WriteLine("Recieved...");
                 for (int i = 0; i < k; i++)
                     Console.Write(Convert.ToChar(b[i]));
 
                 ASCIIEncoding asen = new ASCIIEncoding();
                 s.Send(asen.GetBytes("The string was recieved by the server."));
-                mainConsole.Text += "\nSent Acknowledgement/n";
+                Console.WriteLine("\nSent Acknowledgement");
                 /* clean up */
                 s.Close();
                 myList.Stop();
@@ -56,7 +48,7 @@ namespace ObjectClientServer
             }
             catch (Exception e)
             {
-                mainConsole.Text += "Error..... " + e.StackTrace + "/n";
+                Console.WriteLine("Error..... " + e.StackTrace);
             }
         }
 
@@ -80,4 +72,3 @@ namespace ObjectClientServer
             }
         }
     }
-}

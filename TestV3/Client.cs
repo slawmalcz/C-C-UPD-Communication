@@ -6,38 +6,29 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 
-namespace ObjectClientServer
-{
+
     class Client
     {
-        private TextBlock mainConsole;
-
-        public Client(TextBlock mainConsole)
-        {
-            this.mainConsole = mainConsole;
-        }
-
         public void Main()
         {
-            try
-            {
+            //try
+            //{
                 TcpClient tcpclnt = new TcpClient();
-                mainConsole.Text += "Connecting...../n";
+                Console.WriteLine( "Connecting.....");
 
-                tcpclnt.Connect(HostNameToIP("DESKTOP-0HHCC1N"), 25565);
+                tcpclnt.Connect(IPAddress.Parse("192.168.1.106"),25565);
                 // use the ipaddress as in the server program
 
-                mainConsole.Text += "Connected /n";
-                mainConsole.Text += "Enter the string to be transmitted : /n";
+                Console.WriteLine( "Connected");
+                Console.WriteLine( "Enter the string to be transmitted : ");
 
                 String str = "Test message";
                 Stream stm = tcpclnt.GetStream();
 
                 ASCIIEncoding asen = new ASCIIEncoding();
                 byte[] ba = asen.GetBytes(str);
-                mainConsole.Text += "Transmitting...../n";
+                Console.WriteLine( "Transmitting.....");
 
                 stm.Write(ba, 0, ba.Length);
 
@@ -48,12 +39,12 @@ namespace ObjectClientServer
                     Console.Write(Convert.ToChar(bb[i]));
 
                 tcpclnt.Close();
-            }
+            //}
 
-            catch (Exception e)
+            /*catch (Exception e)
             {
-                mainConsole.Text += "Error..... " + e.StackTrace+"/n";
-            }
+                Console.WriteLine( "Error..... " + e.StackTrace);
+            }*/
         }
 
         private IPAddress HostNameToIP(string host)
@@ -76,4 +67,3 @@ namespace ObjectClientServer
             }
         }
     }
-}

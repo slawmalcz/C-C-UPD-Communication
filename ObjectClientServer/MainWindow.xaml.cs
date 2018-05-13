@@ -34,7 +34,7 @@ namespace ObjectClientServer
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             var ClientButton = new Client(MainConsole);
-            ClientButton
+            ClientButton.Main();
         }
     }
 }
