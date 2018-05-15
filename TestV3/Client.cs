@@ -27,19 +27,19 @@ class Client
 
             // Connecting witch server and sending clientIP
             String serverIP;
-            Console.WriteLine("Podaj adres IPServera:");
+            Console.WriteLine("Czy połączenie jest pośredniczone przez server? (Y/N)");
+            if (Console.ReadLine() == "Y")
+            {
+            Console.WriteLine("Podaj nazwe Servera:");
             serverIP = Console.ReadLine();
 
             Console.WriteLine("Connecting.....");
-            tcpclnt.Connect(IPAddress.Parse(serverIP), connectionport);
+            tcpclnt.Connect(HostNameToIP(serverIP), connectionport);
             // use the ipaddress as in the server program
 
             Console.WriteLine("Connected");
 
             //This part is only walid when connectiong external port
-            Console.WriteLine("Czy połączenie jest pośredniczone przez server? (Y/N)");
-            if (Console.ReadLine() == "Y")
-            {
                 Console.WriteLine("PodajIP clienta do transferu : ");
 
                 str = Console.ReadLine();
@@ -56,6 +56,17 @@ class Client
 
                 for (int i = 0; i < k; i++)
                     Console.Write(Convert.ToChar(bb[i]));
+            }
+            else
+            {
+                Console.WriteLine("Podaj adres IPServera:");
+                serverIP = Console.ReadLine();
+
+                Console.WriteLine("Connecting.....");
+                tcpclnt.Connect(IPAddress.Parse(serverIP), connectionport);
+                // use the ipaddress as in the server program
+
+                Console.WriteLine("Connected");
             }
 
             //Sending name and extension
