@@ -107,35 +107,8 @@ int main(void)
 		return 1;
 	}
 	
-	struct sockaddr_in client_address;
-	int client_address_len = 0;
-	
-	while(true){
-		int sock;
-		if((sock = accept(listen_sock, (struct sockaddr *)&client_address, &client_address_len)) < 0){
-			printf("Could not open a socket to accept data\n");
-			return 1;
-		}
-		
-		int n = 0;
-		int len = 0, maxlen = 1024;
-		char buffer[maxlen];
-		char *pbuffer = buffer;
-		
-		printf("Client connected with ip address: %s\n",inet_ntoa(client_address.sin_addr));
-		
-		while((n = recv(sock, pbuffer, maxlen, 0)) > 0){
-			pbuffer += n;
-			maxlen -= n;
-			len += n;
-			
-			printf("Recived: '%s'\n", buffer);
-			
-			send(sock, buffer, len, 0);
-		}
-		
-		close(sock);
-	}
+
+
 	
 	close(listen_sock);
 	return 0;
