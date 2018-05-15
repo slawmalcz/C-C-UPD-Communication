@@ -31,11 +31,13 @@ int main(void)
 	const char* data_to_send = "Test message";
 	send(sock, data_to_send, strlen(data_to_send), 0);
 	
+	
+	
 	int n = 0;
 	int len = 0, maxlen = 100;
 	char buffer[maxlen];
 	char* pbuffer = buffer;
-/*	
+
 	while((n = recv(sock, pbuffer, maxlen, 0)) > 0){
 		pbuffer += n;
 		maxlen -=n;
@@ -44,7 +46,8 @@ int main(void)
 		buffer[len] = '\0';
 		printf("recived: '%s'\n", buffer);
 	}
-	*/
+	
 	close(sock);
+	
 	return 0;
 }
