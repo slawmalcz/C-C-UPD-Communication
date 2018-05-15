@@ -35,7 +35,7 @@ int main(void)
 	int len = 0, maxlen = 100;
 	char buffer[maxlen];
 	char* pbuffer = buffer;
-	
+/*	
 	while((n = recv(sock, pbuffer, maxlen, 0)) > 0){
 		pbuffer += n;
 		maxlen -=n;
@@ -44,7 +44,7 @@ int main(void)
 		buffer[len] = '\0';
 		printf("recived: '%s'\n", buffer);
 	}
-	
+	*/
 	close(sock);
 	return 0;
 }

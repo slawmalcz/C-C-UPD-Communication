@@ -7,7 +7,7 @@
 
 int main(void)
 {
-	int SERVER_PORT = 25565;
+	int SERVER_PORT = 25566;
 	
 	struct sockaddr_in server_addres;
 	memset(&server_addres, 0, sizeof(server_addres));
@@ -18,6 +18,8 @@ int main(void)
 	server_addres.sin_addr.s_addr = htonl(INADDR_ANY);
 	
 	int listen_sock;
+	
+	
 	if((listen_sock = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 		printf("Could not create listen socket\n");
 		return 1;
@@ -40,13 +42,15 @@ int main(void)
 	
 	while(true){
 		int sock;
+ 
+		
 		if((sock = accept(listen_sock, (struct sockaddr *)&client_address, &client_address_len)) < 0){
 			printf("Could not open a socket to accept data\n");
 			return 1;
 		}
 		
 		int n = 0;
-		int len = 0, maxlen = 100;
+		int len = 0, maxlen = 1024;
 		char buffer[maxlen];
 		char *pbuffer = buffer;
 		
@@ -60,11 +64,25 @@ int main(void)
 			printf("Recived: '%s'\n", buffer);
 			
 			send(sock, buffer, len, 0);
+			
+			
+			
 		}
 		
+		
+		
 		close(sock);
+		int i;
+	
+		for(i = 0; i < maxlen; i++){
+			buffer[i] = '\0';
+		}
 	}
 	
+	
+	
 	close(listen_sock);
+	
+
 	return 0;
 }
