@@ -10,23 +10,25 @@ using TestV3;
 
 class Server
     {
+    public const int connectionport = 25565;
+    public const string localIP = "150.254.79.212";
+    public const int byteBuffer = 1024;
 
         public void Main()
         {
             try
             {
             // Setting client reciver IP
-            IPAddress ipAd = IPAddress.Parse("192.168.25.145");
+            IPAddress ipAd = IPAddress.Parse(GetLocalIPAddress());
             // use local m/c IP address, and 
             // use the same in the client
 
-            /* Initializes the Listener */
-            TcpListener myList = new TcpListener(ipAd, 25565);
+            TcpListener myList = new TcpListener(ipAd, connectionport);
                 Console.WriteLine("Starting ...");
-                /* Start Listeneting at the specified port */
+                
                 myList.Start();
 
-                Console.WriteLine("The ReciveClient is running at port 25565...");
+                Console.WriteLine("The ReciveClient is running at port "+connectionport.ToString()+"...");
                 Console.WriteLine("The local End point is  :" +
                                   myList.LocalEndpoint);
                 Console.WriteLine("Waiting for a connection.....");
@@ -36,7 +38,7 @@ class Server
 
                 // Reciving nameand Extension
                 String nameAndExtension = "";
-                byte[] b = new byte[1024];
+                byte[] b = new byte[byteBuffer];
                 int k = s.Receive(b);
                 Console.WriteLine("Recieved...");
                 for (int i = 0; i < k; i++)
@@ -51,7 +53,7 @@ class Server
 
                 //Reciving num of packages
                 String numPackageString = "";
-                b = new byte[1024];
+                b = new byte[byteBuffer];
                 k = s.Receive(b);
                 Console.WriteLine("Recieved...");
                 for (int i = 0; i < k; i++)
@@ -72,7 +74,7 @@ class Server
                 {
                     //Reciving key
                     String key = "";
-                    b = new byte[1024];
+                    b = new byte[byteBuffer];
                     k = s.Receive(b);
                     Console.WriteLine("Recieved...");
                     for (int i = 0; i < k; i++)
@@ -86,7 +88,7 @@ class Server
                     Console.WriteLine("\nSent Acknowledgement");
 
                     //Reciving package
-                    b = new byte[1024];
+                    b = new byte[byteBuffer];
                     k = s.Receive(b);
                     Console.WriteLine("Recieved...");
                     for (int i = 0; i < k; i++)
@@ -116,9 +118,22 @@ class Server
             {
                 Console.WriteLine("Error..... " + e.Message + e.StackTrace);
             }
+        }
+
+    private static string GetLocalIPAddress()
+    {
+        var host = Dns.GetHostEntry(Dns.GetHostName());
+        foreach (var ip in host.AddressList)
+        {
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                return ip.ToString();
+            }
+        }
+        throw new Exception("No network adapters with an IPv4 address in the system!");
     }
 
-        private IPAddress HostNameToIP(string host)
+    private IPAddress HostNameToIP(string host)
         {
             IPHostEntry hostEntry;
 

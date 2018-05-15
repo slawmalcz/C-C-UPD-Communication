@@ -68,10 +68,10 @@ namespace TestV3
 
         private bool checkFinalSum(int numOfPackages)
         {
-            /*for(int i = 0; i <= numOfPackages; i++)
+            for(int i = 0; i < numOfPackages; i++)
             {
                 if (!this.CreateFile.ContainsKey(i)) return false;
-            }*/
+            }
             return true;
         }
 
@@ -86,7 +86,7 @@ namespace TestV3
                 }
                 byte[] finalData = fileData.ToArray();
 
-                File.WriteAllBytes("testc.txt", finalData);
+                File.WriteAllBytes("Copy-"+ filePath, finalData);
             }
             else
             {

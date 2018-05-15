@@ -10,61 +10,40 @@ using TestV3;
 
 class Client
     {
-        public void Main()
+    public const int connectionport = 25565;
+    public const int byteBuffer = 1024;
+    public void Main()
+    {
+        try
         {
-            //try
-            //{
-                TcpClient tcpclnt = new TcpClient();
-                FileProcesor fileProcesor = new FileProcesor();
-                String str;
-                Stream stm;
-                byte[] ba,bb;
-                int k;
+            TcpClient tcpclnt = new TcpClient();
+            FileProcesor fileProcesor = new FileProcesor();
+            String str;
+            Stream stm;
+            byte[] ba, bb;
+            int k;
 
-                ASCIIEncoding asen = new ASCIIEncoding();
+            ASCIIEncoding asen = new ASCIIEncoding();
 
-        // Connecting witch server and sending clientIP
-        String serverIP;
-                Console.WriteLine("Podaj adres IPServera:");
-                serverIP = Console.ReadLine();
+            // Connecting witch server and sending clientIP
+            String serverIP;
+            Console.WriteLine("Podaj adres IPServera:");
+            serverIP = Console.ReadLine();
 
-                Console.WriteLine("Connecting.....");
-                tcpclnt.Connect(IPAddress.Parse(serverIP), 25565);
-                // use the ipaddress as in the server program
+            Console.WriteLine("Connecting.....");
+            tcpclnt.Connect(IPAddress.Parse(serverIP), connectionport);
+            // use the ipaddress as in the server program
 
-                Console.WriteLine("Connected");
+            Console.WriteLine("Connected");
 
-                //This part is only walid when connectiong external port
-                /*
+            //This part is only walid when connectiong external port
+            Console.WriteLine("Czy połączenie jest pośredniczone przez server? (Y/N)");
+            if (Console.ReadLine() == "Y")
+            {
                 Console.WriteLine("PodajIP clienta do transferu : ");
 
-                String str = Console.ReadLine();
-                Stream stm = tcpclnt.GetStream();
-
-                ASCIIEncoding asen = new ASCIIEncoding();
-                byte[] ba = asen.GetBytes(str);
-                Console.WriteLine("Transmitting.....");
-
-                stm.Write(ba, 0, ba.Length);
-
-                byte[] bb = new byte[1024];
-                int k = stm.Read(bb, 0, 1024);
-
-                for (int i = 0; i < k; i++)
-                    Console.Write(Convert.ToChar(bb[i]));
-                */
-
-                //Sending name and extension
-                String filePath;
-                Console.WriteLine("Podaj sciezke pliku do wyslania:");
-                filePath = Console.ReadLine();
-                fileProcesor = new FileProcesor(filePath);
-
-                Console.WriteLine("Sending name and extension...");
-
-                str = fileProcesor.getNameAndExtension();
+                str = Console.ReadLine();
                 stm = tcpclnt.GetStream();
-                Console.WriteLine(str);
 
                 asen = new ASCIIEncoding();
                 ba = asen.GetBytes(str);
@@ -72,80 +51,107 @@ class Client
 
                 stm.Write(ba, 0, ba.Length);
 
-                bb = new byte[1024];
+                bb = new byte[byteBuffer];
                 k = stm.Read(bb, 0, 1024);
 
                 for (int i = 0; i < k; i++)
                     Console.Write(Convert.ToChar(bb[i]));
+            }
 
-                // Sending package number
-                Console.WriteLine("Sending package number...");
+            //Sending name and extension
+            String filePath;
+            Console.WriteLine("Podaj sciezke pliku do wyslania:");
+            filePath = Console.ReadLine();
+            fileProcesor = new FileProcesor(filePath);
 
-                str = fileProcesor.numOfPacket.ToString();
-                stm = tcpclnt.GetStream();
-                Console.WriteLine(str);
+            Console.WriteLine("Sending name and extension...");
 
-                asen = new ASCIIEncoding();
-                ba = asen.GetBytes(str);
-                Console.WriteLine("Transmitting.....");
+            str = fileProcesor.getNameAndExtension();
+            stm = tcpclnt.GetStream();
+            Console.WriteLine(str);
 
-                stm.Write(ba, 0, ba.Length);
+            asen = new ASCIIEncoding();
+            ba = asen.GetBytes(str);
+            Console.WriteLine("Transmitting.....");
 
-                bb = new byte[1024];
-                k = stm.Read(bb, 0, 1024);
+            stm.Write(ba, 0, ba.Length);
 
-                for (int i = 0; i < k; i++)
-                    Console.Write(Convert.ToChar(bb[i]));
+            bb = new byte[byteBuffer];
+            k = stm.Read(bb, 0, byteBuffer);
 
-                //Sending file
-                var packages = fileProcesor.GetPackages();
-                Console.WriteLine("Sending " + fileProcesor.numOfPacket + " packages...");
-                foreach (var package in packages)
-                {
-                    //Sending key
-                    Console.WriteLine("Sending key value...");
+            for (int i = 0; i < k; i++)
+                Console.Write(Convert.ToChar(bb[i]));
 
-                    str = package.Key.ToString();
-                    stm = tcpclnt.GetStream();
-                    Console.WriteLine(str);
+            // Sending package number
+            Console.WriteLine("Sending package number...");
 
-                    asen = new ASCIIEncoding();
-                    ba = asen.GetBytes(str);
-                    Console.WriteLine("Transmitting.....");
+            str = fileProcesor.numOfPacket.ToString();
+            stm = tcpclnt.GetStream();
+            Console.WriteLine(str);
 
-                    stm.Write(ba, 0, ba.Length);
+            asen = new ASCIIEncoding();
+            ba = asen.GetBytes(str);
+            Console.WriteLine("Transmitting.....");
 
-                    bb = new byte[1024];
-                    ////k = stm.Read(bb, 0, 1024);
+            stm.Write(ba, 0, ba.Length);
 
-                    for (int i = 0; i < k; i++)
-                        Console.Write(Convert.ToChar(bb[i]));
-                    //Sending key
-                    // Sending package
-                    Console.WriteLine("Sending package " + package.Key);
-                    
+            bb = new byte[byteBuffer];
+            k = stm.Read(bb, 0, byteBuffer);
 
-                    stm = tcpclnt.GetStream();
+            for (int i = 0; i < k; i++)
+                Console.Write(Convert.ToChar(bb[i]));
 
-                    ba = package.Value;
-                    Console.WriteLine(ba);
-                    Console.WriteLine("Transmitting.....");
-
-                    stm.Write(ba, 0, ba.Length);
-
-                    bb = new byte[1024];
-                    k = stm.Read(bb, 0, 1024);
-
-                    for (int i = 0; i < k; i++)
-                        Console.Write(Convert.ToChar(bb[i]));
-                    //Sending package
-                }
-            /*}
-            catch (Exception e)
+            //Sending file
+            var packages = fileProcesor.GetPackages();
+            Console.WriteLine("Sending " + fileProcesor.numOfPacket + " packages...");
+            foreach (var package in packages)
             {
-                Console.WriteLine( "Error..... " + e.StackTrace);
-            }*/
+                //Sending key ==>
+                Console.WriteLine("Sending key value...");
+
+                str = package.Key.ToString();
+                stm = tcpclnt.GetStream();
+                Console.WriteLine(str);
+
+                asen = new ASCIIEncoding();
+                ba = asen.GetBytes(str);
+                Console.WriteLine("Transmitting.....");
+
+                stm.Write(ba, 0, ba.Length);
+
+                bb = new byte[byteBuffer];
+                k = stm.Read(bb, 0, byteBuffer);
+
+                for (int i = 0; i < k; i++)
+                    Console.Write(Convert.ToChar(bb[i]));
+                // <== Sending key
+                // Sending package ==>
+                Console.WriteLine("Sending package " + package.Key);
+
+
+                stm = tcpclnt.GetStream();
+
+                ba = package.Value;
+                Console.WriteLine(ba);
+                Console.WriteLine("Transmitting.....");
+
+                stm.Write(ba, 0, ba.Length);
+
+                bb = new byte[byteBuffer];
+                k = stm.Read(bb, 0, byteBuffer);
+
+                for (int i = 0; i < k; i++)
+                    Console.Write(Convert.ToChar(bb[i]));
+                // <== Sending package
+            }
         }
+        catch (Exception e)
+        {
+            Console.WriteLine("Error..... " + e.StackTrace);
+        }
+    }
+
+
 
         private IPAddress HostNameToIP(string host)
         {
