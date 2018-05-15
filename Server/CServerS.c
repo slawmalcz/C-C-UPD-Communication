@@ -5,7 +5,11 @@
 #include <string.h>
 #include <unistd.h>
 
-int CServer(int listen_sock){
+#DEFINE BufferSize 1024
+#DEFINE OutsidePort 25566
+#DEFINE InsidePort 25565
+
+int CServer(int listen_sock, char * output){
 	struct sockaddr_in client_address;
 	int client_address_len = 0;
 	
@@ -16,7 +20,7 @@ int CServer(int listen_sock){
 		}
 		
 		int n = 0;
-		int len = 0, maxlen = 1024;
+		int len = 0, maxlen = BufferSize;
 		char buffer[maxlen];
 		char *pbuffer = buffer;
 		
@@ -29,21 +33,21 @@ int CServer(int listen_sock){
 			
 			printf("Recived: '%s'\n", buffer);
 			
-			send(sock, buffer, len, 0);
+			output = *buffer;
 		}
 		
 		close(sock);
 	return 0;
 }
 
-int CClient(char ipAdres[1024]){
-	const int server_port = 25566;
+int CClient(char * ipAdres,char * message){
+	const int server_port = OutsidePort;
 	struct sockaddr_in server_address;
 	int s;
 
 	server_address.sin_family = AF_INET;
 	server_address.sin_port = htons(server_port);
-	inet_aton("150.254.79.213", &server_address.sin_addr.s_addr);
+	inet_aton(ipAdres, &server_address.sin_addr.s_addr);
 	
 	int sock;
 	if((sock = socket(PF_INET, SOCK_STREAM, 0 )) < 0){
@@ -56,22 +60,7 @@ int CClient(char ipAdres[1024]){
 		return 1;
 	}
 	
-	const char* data_to_send = "Test message";
-	send(sock, data_to_send, strlen(data_to_send), 0);
-	
-	int n = 0;
-	int len = 0, maxlen = 100;
-	char buffer[maxlen];
-	char* pbuffer = buffer;
-	
-	while((n = recv(sock, pbuffer, maxlen, 0)) > 0){
-		pbuffer += n;
-		maxlen -=n;
-		len +=n;
-		
-		buffer[len] = '\0';
-		printf("recived: '%s'\n", buffer);
-	}
+	send(sock, message, strlen(message), 0);
 	
 	close(sock);
 	return 0;
@@ -79,7 +68,7 @@ int CClient(char ipAdres[1024]){
 
 int main(void)
 {
-	int SERVER_PORT = 25565;
+	int SERVER_PORT = InsidePort;
 	
 	struct sockaddr_in server_addres;
 	memset(&server_addres, 0, sizeof(server_addres));
