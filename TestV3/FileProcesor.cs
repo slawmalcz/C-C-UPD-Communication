@@ -84,6 +84,18 @@ namespace TestV3
                 {
                     fileData.AddRange(this.CreateFile[i].ToList());
                 }
+                // Null end cutting 
+                for (int i=1; i<= numOfPackages; i++)
+                {
+                    if (fileData[numOfPackages - i] == 0)
+                    {
+                        fileData.RemoveAt(numOfPackages - i);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
                 byte[] finalData = fileData.ToArray();
 
                 File.WriteAllBytes("Copy-"+ filePath, finalData);
