@@ -8,7 +8,7 @@
 int BUFFERSIZE = 1024;
 int OUTSIDEPORT = 25566;
 int INSIDEPORT = 25565;
-
+/*
 int CServer(int listen_sock, char * output){
 	struct sockaddr_in client_address;
 	int client_address_len = 0;
@@ -103,9 +103,10 @@ int CClient(char * ipAdres,char *message){
 	close(sock);
 	return 0;
 }
-
+*/
 int main(void)
 {
+	printf("Starting program...");
 	int SERVER_PORT = INSIDEPORT;
 	
 	struct sockaddr_in server_addres;
@@ -134,19 +135,66 @@ int main(void)
 		return 1;
 	}
 	
-	char buffer[BUFFERSIZE];
 
 	
-	 printf("Starting...");
-	 printf("Waiting for connection...");
+	 printf("Starting... /n");
+	 printf("Waiting for connection... /n");
 	
-	CServer(listen_sock, *buffer);
-	
-	//CClient(*buffer,);
-	
+	while(true){
+	//Part 1	
+		struct sockaddr_in client_address;
+		int client_address_len = 0;
+		
+		int sock;
+			if((sock = accept(listen_sock, (struct sockaddr *)&client_address, &client_address_len)) < 0){
+				printf("Could not open a socket to accept data\n");
+				return 1;
+			}
+			
+			int n = 0;
+			int len = 0, maxlen = BUFFERSIZE;
+			char buffer[maxlen];
+			char *pbuffer = buffer;
+			
+			printf("Client connected with ip address: %s\n",inet_ntoa(client_address.sin_addr));
+			
+			while((n = recv(sock, pbuffer, maxlen, 0)) > 0){
+				pbuffer += n;
+				maxlen -= n;
+				len += n;
+				
+				printf("Recived: '%s'\n", buffer);
 
+			}
+			
+			close(sock);
+			
+			char message[] = "ok";
+			//CClient
+		struct sockaddr_in server_address;
+		int s;
 
-	
+		server_address.sin_family = AF_INET;
+		server_address.sin_port = htons(OUTSIDEPORT);
+		server_address.sin_addr = client_address.sin_addr;
+		
+
+		if((sock = socket(PF_INET, SOCK_STREAM, 0 )) < 0){
+			printf("Could not create socket\n");
+			return 1;
+		}
+		
+		if(connect(sock, (struct sockaddr*)&server_address, sizeof(server_address)) < 0){
+			printf("Could not connect to server\n");
+			return 1;
+		}
+		
+		send(sock, message, strlen(message), 0);
+		
+		close(sock);
+		//Part 2
+	}
+
 	close(listen_sock);
 	return 0;
 }
