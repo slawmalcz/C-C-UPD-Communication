@@ -73,9 +73,8 @@ int CServerIni(int listen_sock, char * output){
 		
 		int CClient(output, message);
 		
-		char ipBuffer[BUFFERSIZE];
-		ipBuffer = inet_ntoa(client_address.sin_addr);
-		output = *ipBuffer;
+		output = inet_ntoa(client_address.sin_addr);
+		
 	return 0;
 }
 
